@@ -14,7 +14,7 @@
 | Phase | Step | Task ID | Task | Status |
 | :---- | :--- | :------------ | --- | :--- |
 | Phase 0: AI Tool & Plan Setup | Step 0 | `0-0-1` | `chore(ai): setup ai tool configuration for roadmap and plan files` | ✅ Done |
-| Phase 0: AI Tool & Plan Setup | Step 0 | `0-0-2` | `chore(ai): add ai prompt templates for roadmap planning workflow` | ⬜ Planned |
+| Phase 0: AI Tool & Plan Setup | Step 0 | `0-0-2` | `chore(ai): add ai prompt templates for roadmap planning workflow` | ✅ Done |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-1` | `chore(core): initialize nestjs 12 scaffolding and git quality gates` | ⬜ Planned |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-2` | `feat(arch): add module structure with solid layout` | ⬜ Planned |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-3` | `chore(core): add vitest unit and e2e scaffolding with coverage thresholds` | ⬜ Planned |
