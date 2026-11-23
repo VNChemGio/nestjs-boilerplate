@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 2 (II): Data Layer & Resilience - Step 2: Cache & Queue Infrastructure
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit
 > **Task format**: each atomic task uses the 7-field format — Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing
 > **Execution**: Phase II tasks may run in parallel (from common `dev` base)
@@ -24,7 +25,7 @@ Add Keyv-backed Redis caching with a `boilerplate` namespace and BullMQ queues w
 - **Testing**: unit test that the config provider returns `namespace: 'boilerplate'` and honours the driver toggle (`npm test -- src/config/cache.config.spec.ts`); `npm run typecheck`.
 
 ### `II-2-1b` — Register global cache module with memory fallback adapter
-- **Description**: Register the global `CacheModule.forRootAsync()` in `src/app.module.ts` using the config provider from `II-2-1a`; implement a Keyv-backed cache adapter (Redis store when `CACHE_DRIVER=redis`, plain in-memory Keyv when `memory` or Redis is unavailable in dev) behind a `CachePort`, and expose it via a dedicated `CacheModule`/service. Atomic checks: (a) global module registered via `forRootAsync`, (b) keys carry the `boilerplate` namespace prefix, (c) memory fallback selected by env, (d) get/set/delete through the port.
+- **Description**: Register the global `CacheModule.forRootAsync()` in `src/app.module.ts` using the config provider from `II-2-1a`; implement a Keyv-backed cache adapter (Redis store when `CACHE_DRIVER=redis`, plain in-memory Keyv when `memory` or Redis is unavailable in dev) behind a `CachePort`, and expose it via a dedicated `CacheModule`/service. DDD/SOLID: `CachePort` is the domain boundary, both adapters are interchangeable implementations selected by config (DIP/LSP) and share the conformance suite. Atomic checks: (a) global module registered via `forRootAsync`, (b) keys carry the `boilerplate` namespace prefix, (c) memory fallback selected by env, (d) get/set/delete through the port.
 - **CLI(s)**: `npx nest g module cache`
 - **Package(s)**: `None` (uses packages installed in `II-2-1a`)
 - **File(s)/Folder(s)**:
@@ -48,7 +49,7 @@ Add Keyv-backed Redis caching with a `boilerplate` namespace and BullMQ queues w
 - **Testing**: unit test config provider returns the expected connection/prefix/default job options; `npm run typecheck`; boot smoke check with local Redis running.
 
 ### `II-2-2b` — Add queue port and in-memory fallback adapter
-- **Description**: Define a transport-agnostic queue port (`register`, `enqueue`, `process`, named queues) and implement two adapters: a BullMQ adapter wrapping `@nestjs/bullmq` queues and an in-memory adapter for local dev without Redis; select the adapter from config and export a stable injection token for consumers (the mail queue in `II-3-1`). Atomic checks: (a) port interface, (b) both adapters conform, (c) env-based selection, (d) enqueue/process works with both.
+- **Description**: Define a transport-agnostic queue port (`register`, `enqueue`, `process`, named queues) and implement two adapters: a BullMQ adapter wrapping `@nestjs/bullmq` queues and an in-memory adapter for local dev without Redis; select the adapter from config and export a stable injection token for consumers (the mail queue in `II-3-1`). DDD/SOLID: the transport-agnostic port sits at the domain boundary; BullMQ and in-memory adapters are substitutable behind that token (DIP/LSP/OCP). Atomic checks: (a) port interface, (b) both adapters conform, (c) env-based selection, (d) enqueue/process works with both.
 - **CLI(s)**: `npx nest g module queue`
 - **Package(s)**: `None` (uses packages installed in `II-2-2a`)
 - **File(s)/Folder(s)**:

@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 10 (X): Custom Email & Runtime Config - Step 1: Custom Email & Runtime Config
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; each atomic task uses the 7-field format (Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing)
 > **Execution**: Strict sequential Phase IX → X
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -12,7 +13,7 @@ Add a pluggable custom email provider and a custom runtime configuration store, 
 ## Atomic Tasks
 
 ### `X-1-1a` — Add pluggable custom email provider adapter
-- **Description**: Implement a user-selectable custom email provider adapter that satisfies the existing mail port, selectable by config, with a runtime setter so the active provider can be switched without code changes. Atomic checks: (a) custom provider adapter implements the mail port, (b) provider selectable by config, (c) swappable via a provider registry, (d) no duplicate delivery.
+- **Description**: Implement a user-selectable custom email provider adapter that satisfies the existing mail port, selectable by config, with a runtime setter and registry so the active provider can be switched without code changes (OCP — no consumer edits when adding a provider). Atomic checks: (a) custom provider adapter implements the mail port, (b) provider selectable by config, (c) swappable via a provider registry, (d) no duplicate delivery.
 - **CLI(s)**: `npm test`, `npm run test:e2e`
 - **Package(s)**: `None` — built on the first-party `@nestjs/mail` port used in earlier phases.
 - **File(s)/Folder(s)**:
@@ -24,7 +25,7 @@ Add a pluggable custom email provider and a custom runtime configuration store, 
 - **Testing**: Unit test provider selection and port compliance with `vi.fn()` transport; E2E test switching provider via config sends through the custom adapter; coverage + lint + typecheck.
 
 ### `X-1-1b` — Add custom runtime configuration store and reload
-- **Description**: Add a custom runtime configuration store (admin-editable settings backed by cache/DB from earlier phases) that mail and other modules consume, with change reload/propagation so values update while the app is running without restart. Atomic checks: (a) runtime config store + typed keys, (b) update API, (c) consumers receive changes on reload, (d) no restart required.
+- **Description**: Add a custom runtime configuration store (admin-editable settings backed by cache/DB from earlier phases) that mail and other modules consume behind a narrow config-store port (ISP/DIP), with change reload/propagation so values update while the app is running without restart. Atomic checks: (a) runtime config store + typed keys, (b) update API, (c) consumers receive changes on reload, (d) no restart required.
 - **CLI(s)**: `npm test`, `npm run test:e2e`
 - **Package(s)**: `None` — uses `@nestjs/config` and the existing cache (`II-2-1`) / TypeORM (`II-1-1`) infrastructure.
 - **File(s)/Folder(s)**:

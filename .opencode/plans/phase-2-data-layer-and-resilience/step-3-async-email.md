@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 2 (II): Data Layer & Resilience - Step 3: Async Email
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit
 > **Task format**: each atomic task uses the 7-field format — Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing
 > **Execution**: Phase II tasks may run in parallel (from common `dev` base); conceptually depends on `II-2-2`
@@ -12,7 +13,7 @@ Integrate an asynchronous email provider that dispatches mail through the BullMQ
 ## Atomic Tasks
 
 ### `II-3-1a` — Define mail port and transport adapter
-- **Description**: Install first-party `@nestjs/mail`; define a domain `MailPort` (`send({ to, subject, html, ... })`) and an adapter built on `Mailer` / `MailModule.forRootAsync()`. Select the transport from config: `FileMailTransport` writing `.eml` files in dev, `SmtpTransport` or `ResendTransport` in production; take `from` and transport settings from `src/config/mail.config.ts` exported as an `as Provider()` value. Atomic checks: (a) mail port interface, (b) adapter implements it via `Mailer.send()`, (c) env-based transport selection, (d) file transport works locally.
+- **Description**: Install first-party `@nestjs/mail`; define a domain-layer `MailPort` (`send({ to, subject, html, ... })`) and an infrastructure adapter built on `Mailer` / `MailModule.forRootAsync()` (DIP). Select the transport from config: `FileMailTransport` writing `.eml` files in dev, `SmtpTransport` or `ResendTransport` in production; take `from` and transport settings from `src/config/mail.config.ts` exported as an `as Provider()` value. Atomic checks: (a) mail port interface, (b) adapter implements it via `Mailer.send()`, (c) env-based transport selection, (d) file transport works locally.
 - **CLI(s)**: `npm install @nestjs/mail`
 - **Package(s)**: installed with `npm install @nestjs/mail` — first-party package with built-in `FileMailTransport`, `SmtpTransport` and `ResendTransport` (no extra transport SDK required).
 - **File(s)/Folder(s)**:

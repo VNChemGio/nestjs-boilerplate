@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 4 (IV): Basic Authentication - Step 1: Local Auth & JWT RS256
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: **Description**, **CLI(s)**, **Package(s)**, **File(s)/Folder(s)**, **Branch**, **Commit**, **Testing**
 > **Execution**: Strict sequential Phase III → IV
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -12,7 +13,7 @@ Implement Passport local strategy with Argon2 verification, generate and configu
 ## Atomic Tasks
 
 ### `IV-1-1a` — Add auth module, validate-user use-case and local strategy
-- **Description**: Add `AuthModule` and a Passport `LocalStrategy` using the Argon2 hashing port from `III-1-2a`; validate credentials against the user repository through a `ValidateUser` use-case that returns the user or throws `UnauthorizedException`. Atomic checks: (a) strategy registered, (b) Argon2 verify via port, (c) `ValidateUser` returns the user or throws, (d) no raw password ever logged or returned.
+- **Description**: Add `AuthModule` and a Passport `LocalStrategy` using the Argon2 hashing port from `III-1-2a`; validate credentials against the user repository port through a `ValidateUser` application use-case that returns the user or throws `UnauthorizedException`; the Passport strategy stays in the interfaces layer and Argon2 remains a swappable port adapter (DIP). Atomic checks: (a) strategy registered, (b) Argon2 verify via port, (c) `ValidateUser` returns the user or throws, (d) no raw password ever logged or returned.
 - **CLI(s)**: `npx nest g module auth --no-spec`, `npx nest g service auth --no-spec`
 - **Package(s)**: installed with `npm install @nestjs/passport passport passport-local` and `npm install -D @types/passport-local`; Argon2 itself was installed in `III-1-2a` and is reused via the hashing port.
 - **File(s)/Folder(s)**:

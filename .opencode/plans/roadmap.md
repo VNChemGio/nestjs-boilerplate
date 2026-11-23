@@ -16,7 +16,7 @@
 | Phase 0: AI Tool & Plan Setup | Step 0 | `0-0-1` | `chore(ai): setup ai tool configuration for roadmap and plan files` | ✅ Done |
 | Phase 0: AI Tool & Plan Setup | Step 0 | `0-0-2` | `chore(ai): add ai prompt templates for roadmap planning workflow` | ✅ Done |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-1` | `chore(core): initialize nestjs 12 scaffolding and git quality gates` | ⬜ Planned |
-| Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-2` | `feat(arch): add module structure with solid layout` | ⬜ Planned |
+| Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-2` | `feat(arch): add DDD-aligned module structure with SOLID boundaries` | ⬜ Planned |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-3` | `chore(core): add vitest unit and e2e scaffolding with coverage thresholds` | ⬜ Planned |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-4` | `chore(project): add LICENSE file` | ⬜ Planned |
 | Phase I: Foundation, Scaffolding & Security Tooling | Step 1 | `I-1-5` | `chore(project): add SECURITY.md policy` | ⬜ Planned |
@@ -169,7 +169,7 @@
 
 Design and build a production-ready, highly secure NestJS 12 enterprise boilerplate that delivers secure-by-default foundation capabilities across architecture, data persistence, zero-trust security, multi-tier auth, dev fallbacks, testing, and delivery pipelines.
 
-**Finalized Goal**: Build a NestJS user-management boilerplate where users can authenticate via email + password (local account) or OpenID (federated). Start from the simplest NestJS implementation (passport-jwt basic auth) and then add advanced security in later phases, avoiding over-engineering. Use DDD/Solid principles so encryption/decryption mechanisms can be swapped easily as needed.
+**Finalized Goal**: Build a NestJS user-management boilerplate where users can authenticate via email + password (local account) or OpenID (federated). Start from the simplest NestJS implementation (passport-jwt basic auth) and then add advanced security in later phases, avoiding over-engineering. Use **both DDD and SOLID**, pragmatically, so encryption/decryption and other mechanisms can be swapped easily as needed — see "Architecture & Design Conventions (DDD + SOLID)" below.
 
 ## Phases and Steps
 
@@ -185,7 +185,7 @@ Within each phase, steps execute in ascending chronological order.
 
 ## Final Decisions Log (New Draft)
 
-1. **Architecture**: add task `I-1-2` – module structure with solid layout, so hashing / encryption / token services can be swapped easily (Solid friendly, no DDD).
+1. **Architecture**: add task `I-1-2` – DDD-aligned module structure with SOLID boundaries, so hashing / encryption / token services can be swapped easily (tactical DDD + SOLID, pragmatic — see "Architecture & Design Conventions (DDD + SOLID)").
 
 2. **Basic auth first**: Phase IV basic only (local + JWT RS256); compliance tasks deferred to Phase X.
 
@@ -208,6 +208,37 @@ Within each phase, steps execute in ascending chronological order.
 11. **Phase X – Custom (Email & Runtime Config)**: Phase X focuses on custom email provider and custom configuration when the system is running (runtime), not only email config.
 
 12. **Infrastructure & Benchmark**: Phase XI focuses on production infrastructure setup and performance benchmark.
+
+13. **DDD + SOLID together**: use tactical DDD (bounded contexts, entities/value objects, repository and service ports, use cases, adapters) together with SOLID — especially Dependency Inversion via DI port tokens — across the codebase. Apply it only where it earns its keep (swappable/security-sensitive mechanisms and complex flows), never to trivial config, CI or docs. Every port ships with a conformance test that runs against all its adapters, starting with `I-1-2`; see "Architecture & Design Conventions (DDD + SOLID)".
+
+## Architecture & Design Conventions (DDD + SOLID)
+
+Both paradigms are used **together, pragmatically**: DDD gives the project meaningful boundaries and a ubiquitous language for security-sensitive behavior; SOLID keeps those boundaries substitutable and testable. Full tactical DDD is reserved for contexts with real complexity (`user`, `auth`, `mail`, `security`, `alerts`); config, middleware, CI and documentation stay intentionally simple. No aggregate, value object or port is introduced merely because the pattern exists.
+
+**Bounded contexts = feature modules.** Each `src/modules/<context>/` owns its layers; folders appear as the context grows, not all at once:
+
+| Layer | Folder | Contains | Dependency rule |
+| :---- | :----- | :------- | :-------------- |
+| Domain | `domain/` | Entities, value objects, domain services, repository/service port interfaces, domain events | Pure domain types and behavior — no Nest, TypeORM, Redis or HTTP imports |
+| Application | `application/` (auth: `use-cases/`) | Use cases / application services, query handlers | Orchestrates through ports; no transport or persistence details |
+| Infrastructure | `infrastructure/`, `adapters/` | TypeORM repositories, Keyv/Redis, BullMQ, mail, crypto, TOTP, notifier adapters | Implements domain/application ports; injected via tokens |
+| Interfaces | `interfaces/`, controllers, DTOs, strategies, guards | HTTP controllers, request DTOs, Passport strategies/guards, response mappers | Thin translation between transport and use cases; no business rules |
+
+**Shared kernel and common code.** `src/modules/shared/` owns cross-context port tokens (`PASSWORD_HASHER`, `TOKEN_ISSUER`, `ENCRYPTION_SERVICE`, `ID_GENERATOR`) and their default adapters; feature modules rebind the token to their own adapter instead of redefining the port. `src/common/` (utils, config, logger, middleware, crypto helpers) holds generic, domain-free code and must never import from a feature module's `domain/`.
+
+**SOLID mapping.** *SRP* — one use case or adapter per class; *OCP* — add a new adapter and rebind its token instead of editing a use case; *LSP* — any adapter must be replaceable by another implementation of the same port (enforced by conformance tests); *ISP* — keep ports narrow and consumer-specific; *DIP* — domain and application layers depend only on port interfaces/tokens, never on concrete infrastructure.
+
+**Best-practice guardrails for this project:**
+1. Prefer NestJS v12 first-party packages and native APIs (config, mail, cache, bullmq, resilience, idempotency, security headers, observe) over hand-rolled infrastructure.
+2. Introduce a port only when a mechanism must be swappable or isolated for tests (hashing, encryption, tokens, cache, queue, mail, blacklist, notifiers, policies). A config value or DTO needs no port.
+3. Business rules live in entities, value objects and use cases; controllers stay thin; persistence and transport details stay in adapters.
+4. Every port has a conformance spec executed against **all** its adapters (including the in-memory dev fallback), so substitutions are provably safe.
+5. Value objects, aggregates and domain events are introduced only when invariants or multi-entity consistency demand them — e.g. the `sub` identity, refresh-token family, revocation scope or mail send status — not for every table.
+6. Config is split into small typed files exported as `as Provider()` values for `.forRootAsync()` / `.registerAsync()`; no business rules in config files.
+7. Local memory fallbacks are first-class adapters with the same conformance tests as their Redis/real counterparts, not test-only stubs.
+8. Tests follow the layers: domain/use-case units with mocked ports, adapter conformance specs, E2E at the interfaces layer; all Vitest mocks use `vi.fn()`.
+
+Every step breakdown under `.opencode/plans/<phase-folder>/` repeats the applicable subset of these conventions in its header and applies them in its task descriptions, file paths and testing criteria.
 
 ## Execution Order
 

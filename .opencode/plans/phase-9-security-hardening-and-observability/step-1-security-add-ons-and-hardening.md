@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 9 (IX): Security Hardening & Observability - Step 1: Security Add-ons & Hardening
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; each atomic task uses the 7-field format (Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing)
 > **Execution**: Strict sequential Phase VIII → IX (tasks within step may run in parallel from common base)
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -24,7 +25,7 @@ Harden rate limiting, circuit breaking, key rotation, idempotency, field-level e
 - **Testing**: Unit test boundary behavior at window edges with `vi.fn()` store spies; E2E test HTTP 429 after limit; `npm run lint`, `npm run typecheck`, coverage thresholds.
 
 ### `IX-1-2` — Add circuit breaker for third-party calls
-- **Description**: Harden the resilience basic config (`II-5-5`) into a real circuit breaker wrapping outbound HTTP calls (OAuth providers, breach-list checks) with fallback behavior and metrics hooks. Atomic checks: (a) breaker wraps outbound calls via first-party package, (b) closed/open/half-open transitions, (c) configurable fallback response, (d) state changes emitted for metrics/alerts.
+- **Description**: Harden the resilience basic config (`II-5-5`) into a real circuit breaker wrapping outbound HTTP calls (OAuth providers, breach-list checks) with fallback behavior and metrics hooks; the breaker wraps the outbound port so providers/policies depend on the abstraction, not the circuit-breaker implementation (DIP/OCP). Atomic checks: (a) breaker wraps outbound calls via first-party package, (b) closed/open/half-open transitions, (c) configurable fallback response, (d) state changes emitted for metrics/alerts.
 - **CLI(s)**: `npm install @nestjs/resilience`, `npm test`, `npm run test:e2e`
 - **Package(s)**: installed with `npm install @nestjs/resilience` (prefer this first-party package over a custom implementation).
 - **File(s)/Folder(s)**:

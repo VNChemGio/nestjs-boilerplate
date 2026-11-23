@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 4 (IV): Basic Authentication - Step 2: Token Lifecycle & Revocation
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: **Description**, **CLI(s)**, **Package(s)**, **File(s)/Folder(s)**, **Branch**, **Commit**, **Testing**
 > **Execution**: Strict sequential (Phase IV Step 2 after Step 1)
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -24,7 +25,7 @@ Implement refresh token rotation, a Redis-backed blacklist with an in-memory dev
 - **Testing**: Unit test verifies a valid refresh yields a fresh pair with a new `jti` and that an access token is refused; E2E `npm run test:e2e` covers the refresh flow; full unit + E2E suites, coverage thresholds, `npm run lint`, `npm run typecheck`.
 
 ### `IV-2-2a` — Add token blacklist port and adapters
-- **Description**: Define a `TokenBlacklist` port with a Redis (Keyv) adapter and an in-memory fallback, and add TTL cleanup keyed to token expiry, selecting the fallback when Redis is unavailable. Atomic checks: (a) port + both adapters, (b) fallback selected when Redis is unavailable, (c) entries auto-expire.
+- **Description**: Define a domain-level `TokenBlacklist` port with Redis (Keyv) and in-memory infrastructure adapters (LSP/DIP), and add TTL cleanup keyed to token expiry, selecting the fallback when Redis is unavailable. Atomic checks: (a) port + both adapters, (b) fallback selected when Redis is unavailable, (c) entries auto-expire.
 - **CLI(s)**: `None (config/code only)` — uses the Redis/Keyv client provisioned in `II-2-1`.
 - **Package(s)**: `None` — reuses `keyv`/Redis dependencies from `II-2-1`; no new package.
 - **File(s)/Folder(s)**:
