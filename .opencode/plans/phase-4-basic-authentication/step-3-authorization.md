@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 4 (IV): Basic Authentication - Step 3: Authorization (RBAC)
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: **Description**, **CLI(s)**, **Package(s)**, **File(s)/Folder(s)**, **Branch**, **Commit**, **Testing**
 > **Execution**: Strict sequential (Phase IV Step 3 after Step 2)
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -12,7 +13,7 @@ Implement role-based access control (RBAC) on top of authenticated identities.
 ## Atomic Tasks
 
 ### `IV-3-1a` — Add RBAC role model, decorator and guard
-- **Description**: Define the roles/permissions model, a `@Roles()` decorator and a `RolesGuard` that reads verified JWT claims; allow/deny by role and handle missing claims while unauthenticated requests still return 401 rather than 403. Atomic checks: (a) roles enum/entity, (b) decorator + guard registered globally or per-controller, (c) permission check reads verified JWT claims, (d) unauthenticated requests still return 401.
+- **Description**: Define the roles/permissions model as domain value objects, a `@Roles()` decorator and a `RolesGuard` in the interfaces layer that reads verified JWT claims; allow/deny by role and handle missing claims while unauthenticated requests still return 401 rather than 403. Atomic checks: (a) roles enum/entity, (b) decorator + guard registered globally or per-controller, (c) permission check reads verified JWT claims, (d) unauthenticated requests still return 401.
 - **CLI(s)**: `npx nest g guard roles --no-spec`, `npx nest g decorator roles --no-spec` (fall back to a hand-written decorator if the CLI generator is unavailable)
 - **Package(s)**: `None` — implemented with first-party `@nestjs/common` guards/decorators; no new package.
 - **File(s)/Folder(s)**:

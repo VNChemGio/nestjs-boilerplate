@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 8 (VIII): Advanced Security - Step 7: Account Lockout & Self-Unlock
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit, documented with the 7-field format: **Description**, **CLI(s)**, **Package(s)**, **File(s)/Folder(s)**, **Branch**, **Commit**, **Testing**
 > **Execution**: Phase VIII tasks may run in parallel (from common `dev` base)
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -13,7 +14,7 @@ Lock accounts after consecutive failed login attempts and let users self-unlock 
 ## Atomic Tasks
 
 ### `VIII-7-1a` — Add consecutive-failed-attempt account lockout
-- **Description**: Track failed-login counters in the Keyv cache with TTL, lock the account after a configured threshold/duration, and reject logins while locked with a generic response. Atomic checks: (a) failure counter increment + reset on success, (b) lock threshold + duration from config, (c) locked login rejected without revealing lock state.
+- **Description**: Track failed-login counters through the cache port (Keyv adapter) with TTL, lock the account after a configured threshold/duration, and reject logins while locked with a generic response; lockout state is a domain value object and the use-case stays infrastructure-agnostic (DDD/DIP). Atomic checks: (a) failure counter increment + reset on success, (b) lock threshold + duration from config, (c) locked login rejected without revealing lock state.
 - **CLI(s)**: `None (config/code only)` — reuses `@nestjs/cache-manager` from `II-2-1`.
 - **Package(s)**: `None` — reuses `@nestjs/cache-manager` from `II-2-1`; no new npm package.
 - **File(s)/Folder(s)**:

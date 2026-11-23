@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 8 (VIII): Advanced Security - Step 2: Weak Password Check
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit, documented with the 7-field format: **Description**, **CLI(s)**, **Package(s)**, **File(s)/Folder(s)**, **Branch**, **Commit**, **Testing**
 > **Execution**: Phase VIII tasks may run in parallel (from common `dev` base)
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -12,7 +13,7 @@ Reject weak/breached passwords at registration and password-change using a breac
 ## Atomic Tasks
 
 ### `VIII-2-1a` — Add password policy port and breach-list adapter
-- **Description**: Add a password-policy port with a breach-list adapter (HIBP k-anonymity API via Node built-in `fetch`, with a local-list fallback), register it in `SecurityModule`, and drive it from typed config. Atomic checks: (a) policy port + adapter registered in SecurityModule, (b) breach check returns a clear validation error on a known-breached password, (c) no plaintext password leaves the process.
+- **Description**: Add a password-policy port with a breach-list adapter (HIBP k-anonymity API via Node built-in `fetch`, with a local-list fallback), register it in `SecurityModule` and bind the port token to the adapter (DIP/OCP), and drive it from typed config. Atomic checks: (a) policy port + adapter registered in SecurityModule, (b) breach check returns a clear validation error on a known-breached password, (c) no plaintext password leaves the process.
 - **CLI(s)**: `None (config/code only)` — uses Node built-in `fetch`/`node:crypto` and existing `@nestjs/config` wiring.
 - **Package(s)**: `None` — reuses `@nestjs/config` from earlier phases and built-in `fetch`; no new npm package required.
 - **File(s)/Folder(s)**:

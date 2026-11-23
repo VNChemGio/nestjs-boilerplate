@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 0: AI Tool & Plan Setup - Step 0: AI Tool & Plan Setup
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: no application code in this step; keep configuration/CI/docs simple per the roadmap's "Architecture & Design Conventions (DDD + SOLID)" (pragmatic, no over-engineering).
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: `Description`, `CLI(s)`, `Package(s)`, `File(s)/Folder(s)` (Added / Modified / Deleted), `Branch`, `Commit`, `Testing`
 > **Execution**: Strict sequential (Phase 0 first)
 > **Branch base**: `dev` (branched from `master`)

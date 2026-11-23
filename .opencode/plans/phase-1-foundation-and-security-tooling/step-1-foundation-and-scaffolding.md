@@ -1,12 +1,13 @@
 # Task Breakdown - Phase 1 (I): Foundation & Security Tooling - Step 1: Foundation & Scaffolding
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: `Description`, `CLI(s)`, `Package(s)`, `File(s)/Folder(s)`, `Branch`, `Commit`, `Testing`
 > **Execution**: Strict sequential within Phase I
 > **Branch base**: `dev`; **Branch prefix**: `chore/...` (tooling) / `feat/...` (architecture/logger)
 
 ## Step Summary
-Bootstrap the NestJS 12.6.0 application, DDD-friendly module structure, test harness, project governance docs, Faker fixtures, and environment-aware logger.
+Bootstrap the NestJS 12.6.0 application, DDD-aligned module structure with SOLID boundaries, test harness, project governance docs, Faker fixtures, and environment-aware logger.
 
 ## Atomic Tasks
 
@@ -34,17 +35,17 @@ Bootstrap the NestJS 12.6.0 application, DDD-friendly module structure, test har
 - **Commit**: `chore(core): add git quality gates (lint, format, typecheck, commitlint)`
 - **Testing**: `npm run lint`, `npm run typecheck`, `npm run format:check` and `npm run commitlint` pass; verify `.husky/pre-commit` triggers lint-staged and `.husky/commit-msg` runs commitlint on commit messages.
 
-### `I-1-2` — Add module structure with SOLID layout
-- **Description**: Establish the module structure with SOLID-friendly boundaries: `src/modules/` organized per feature module and `src/common/utils/` for swappable hashing/encryption/jwt utilities. The `src/modules/shared/` ports/adapters layer already present on `dev` is the swappability mechanism, so this task only adds the barrels and documents the convention — no new port/adapter scaffolding. Atomic checks: (a) barrels for `src/modules/` and `src/common/` exist, (b) `src/common/utils/` available for swappable utilities, (c) the shared port bindings are documented in `src/modules/shared/README.md`.
-- **CLI(s)**: `None (layout/config only — the shared ports/adapters and utils folders already exist on dev)`.
+### `I-1-2` — Add DDD-aligned module structure with SOLID boundaries
+- **Description**: Establish the module structure using **both DDD and SOLID** pragmatically (see roadmap "Architecture & Design Conventions (DDD + SOLID)"): `src/modules/` is organized as one bounded context per feature, with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters) and `interfaces/` (controllers/DTOs) layers introduced as each context needs them; `src/common/utils/` hosts swappable hashing/encryption/jwt utilities with no domain logic. The `src/modules/shared/` ports/adapters layer already present on `dev` is the shared kernel (DIP via DI port tokens), so this task adds the barrels, documents the DDD layering + port-binding convention in `src/modules/shared/README.md`, and adds a port-conformance smoke spec — no new port/adapter implementations. Atomic checks: (a) barrels for `src/modules/` and `src/common/` exist, (b) the four-layer convention and shared-port bindings are documented, (c) every shared port token resolves to an adapter satisfying its interface, (d) `src/common/utils/` remains available for swappable utilities.
+- **CLI(s)**: `None (layout/docs/tests only — the shared ports/adapters and utils folders already exist on dev)`.
 - **Package(s)**: `None` — layout only, no new npm packages.
 - **File(s)/Folder(s)**:
-  - **Added**: `src/modules/index.ts`, `src/common/index.ts`
+  - **Added**: `src/modules/index.ts`, `src/common/index.ts`, `src/modules/shared/shared-ports.conformance.spec.ts`
   - **Modified**: `src/app.module.ts`, `src/modules/shared/README.md`
   - **Deleted**: None
-- **Branch**: `feat/arch-module-structure-solid`
-- **Commit**: `feat(arch): add module structure with solid layout`
-- **Testing**: Unit test that the feature module compiles/behaves via a focused test (module wiring smoke); no DDD port/adapter interface checks.
+- **Branch**: `feat/arch-ddd-solid-module-structure`
+- **Commit**: `feat(arch): add DDD-aligned module structure with SOLID boundaries`
+- **Testing**: Unit test that the feature module compiles (module wiring smoke) **plus a DDD port/adapter interface conformance check** asserting each `src/modules/shared/` port token (`PASSWORD_HASHER`, `TOKEN_ISSUER`, `ENCRYPTION_SERVICE`, `ID_GENERATOR`) resolves to an adapter implementing its interface (LSP/DIP); verify the layered convention is documented in `src/modules/shared/README.md`; `npm run typecheck`, coverage thresholds.
 ### `I-1-3` — Add Vitest unit and E2E scaffolding with coverage thresholds
 - **Description**: Install/configure Vitest with `vitest.config.ts` (v8 coverage provider, thresholds for lines/branches/functions/statements) and a separate `vitest.config.e2e.ts` project; add `test:unit`, `test:e2e`, `test:cov` scripts for `*.spec.ts` and `*.e2e-spec.ts`. Atomic checks: (a) all three scripts present, (b) thresholds enforced, (c) sample unit + e2e specs pass.
 - **CLI(s)**: `npm install -D vitest @vitest/coverage-v8 vite supertest @types/supertest`; `npm pkg set scripts.test=... scripts.test:unit=... scripts.test:e2e=... scripts.test:cov=...`; `npm run test:unit`; `npm run test:e2e`; `npm run test:cov`.

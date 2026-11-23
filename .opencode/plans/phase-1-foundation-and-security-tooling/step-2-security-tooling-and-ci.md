@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 1 (I): Foundation & Security Tooling - Step 2: Security Tooling & CI
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: no application code in this step; keep configuration/CI/docs simple per the roadmap's "Architecture & Design Conventions (DDD + SOLID)" (pragmatic, no over-engineering).
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: `Description`, `CLI(s)`, `Package(s)`, `File(s)/Folder(s)`, `Branch`, `Commit`, `Testing`
 > **Execution**: Strict sequential within Phase I (merge each task before cutting the next branch)
 > **Branch base**: `dev`; **Branch prefix**: `ci/...`

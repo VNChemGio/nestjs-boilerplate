@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 3 (III): User Management - Step 1: User Domain Model
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit
 > **Task format**: each atomic task uses the 7-field format — Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing
 > **Execution**: Strict sequential Phase II → III → IV
@@ -13,7 +14,7 @@ Design the user entity supporting both local and OAuth identities via a `sub` cl
 ## Atomic Tasks
 
 ### `III-1-1` — Design user entity with sub claim for local and oauth identities
-- **Description**: Define the User entity/schema (extending the soft-delete base entity from `II-1-1b`) with a `sub` (subject) column that uniquely identifies local and federated identities, a unique email gate, and fields for provider linkage (`provider`, `providerAccountId`, identity type). Atomic checks: (a) `sub` column present + unique, (b) email unique, (c) supports multiple identity types, (d) entity registered with TypeORM.
+- **Description**: Define the User entity/schema (extending the soft-delete base entity from `II-1-1b`) with a `sub` (subject) column that uniquely identifies local and federated identities, a unique email gate, and fields for provider linkage (`provider`, `providerAccountId`, identity type). DDD: `User` is the aggregate root of the `user` bounded context, `sub`/provider linkage are value objects and `UserRepositoryPort` is the persistence boundary; the TypeORM adapter implements that port (DIP). Atomic checks: (a) `sub` column present + unique, (b) email unique, (c) supports multiple identity types, (d) entity registered with TypeORM.
 - **CLI(s)**: `npx nest g module user`
 - **Package(s)**: `None` (uses `typeorm` from `II-1-1a` and the base entity from `II-1-1b`)
 - **File(s)/Folder(s)**:

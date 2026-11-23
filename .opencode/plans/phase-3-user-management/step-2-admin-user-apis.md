@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 3 (III): User Management - Step 2: Admin User APIs
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit
 > **Task format**: each atomic task uses the 7-field format — Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing
 > **Execution**: Strict sequential (Phase III Step 2 after Step 1)
@@ -25,7 +26,7 @@ Expose admin CRUD APIs for user add/edit/delete, protected and documented.
 - **Testing**: unit test DTO validation (whitelist/transform) and guard placeholder behavior; `npm run typecheck` and `npm run lint`.
 
 ### `III-2-1b` — Add admin CRUD controller and service
-- **Description**: Implement `POST /admin/users`, `PATCH /admin/users/:id`, `DELETE /admin/users/:id` using the user repository port from `III-1-1`, Swagger docs with Faker examples from `I-3-7`, the guard placeholder from `III-2-1a`, and soft delete from `II-1-1b` on DELETE. Atomic checks: (a) three endpoints, (b) soft delete used, (c) guard applied, (d) Swagger metadata present.
+- **Description**: Implement `POST /admin/users`, `PATCH /admin/users/:id`, `DELETE /admin/users/:id` using the user repository port from `III-1-1` (application service → domain port, controller stays in the interfaces layer), Swagger docs with Faker examples from `I-3-7`, the guard placeholder from `III-2-1a`, and soft delete from `II-1-1b` on DELETE. Atomic checks: (a) three endpoints, (b) soft delete used, (c) guard applied, (d) Swagger metadata present.
 - **CLI(s)**: `npx nest g controller admin/users --no-spec`, `npx nest g service admin/users --no-spec`
 - **Package(s)**: `None` (reuses `typeorm` from `II-1-1a`, `@nestjs/swagger` + Faker from `I-3-4a`/`I-1-7`)
 - **File(s)/Folder(s)**:

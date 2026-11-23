@@ -10,6 +10,9 @@
 Phase 0 → I → II → III → IV → V ∥ VI ∥ VII → VIII → IX → X → XI
 (∥ = parallel from a common `dev` base; all other transitions strict sequential.)
 
+## Architecture & Design Conventions (DDD + SOLID)
+This breakdown follows the roadmap's "Architecture & Design Conventions (DDD + SOLID)" section: one bounded context per `src/modules/<context>/` with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters) and `interfaces/` (controllers/DTOs); `src/modules/shared/` is the shared-kernel port/adapter layer and `src/common/` is domain-free. Concrete infrastructure is injected via port tokens (DIP), adapters are substitutable (LSP) and narrow (ISP), and every port has a conformance spec that runs against all adapters — introduced by `I-1-2` and repeated by each later port task. Apply these patterns only where they add value (swappable mechanisms and complex security flows); config, CI and docs tasks stay simple. The per-step headers restate the applicable subset.
+
 ## Coverage Summary
 
 ### Phase 0 — AI Tool & Plan Setup

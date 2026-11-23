@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 5 (V): OAuth Integration - Step 1: OAuth Foundation
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format: **Description**, **CLI(s)**, **Package(s)**, **File(s)/Folder(s)**, **Branch**, **Commit**, **Testing**
 > **Execution**: Parallel stream Phase V ∥ VI ∥ VII (from common `dev` base); within phase, steps sequential
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -12,7 +13,7 @@ Build the generic OAuth2 strategy foundation with account merge logic, reused by
 ## Atomic Tasks
 
 ### `V-1-1a` — Add generic OAuth2 strategy, guard and profile normalizer port
-- **Description**: Create an abstract/generic OAuth2 strategy + guard that normalizes every provider profile to the `sub` claim through a profile-normalizer port and enforces a verified-email gate. Atomic checks: (a) reusable generic strategy base + profile normalizer port, (b) unverified email rejected without leaking provider data, (c) guard registered through `OAuthModule`.
+- **Description**: Create an abstract/generic OAuth2 strategy + guard (interfaces layer) that normalizes every provider profile to the `sub` claim through a domain `OAuthProfileNormalizer` port and enforces a verified-email gate; provider adapters implement that port behind the strategy (DIP/OCP). Atomic checks: (a) reusable generic strategy base + profile normalizer port, (b) unverified email rejected without leaking provider data, (c) guard registered through `OAuthModule`.
 - **CLI(s)**: `npx nest g module oauth --no-spec`, `npx nest g guard oauth2 --no-spec`
 - **Package(s)**: installed with `npm install @nestjs/passport passport passport-oauth2` and `npm install -D @types/passport-oauth2`; reuses `@nestjs/jwt` from Phase IV.
 - **File(s)/Folder(s)**:

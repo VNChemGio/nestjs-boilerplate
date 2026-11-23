@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 6 (VI): End-User APIs - Step 1: Registration & Login APIs
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format (`Description`, `CLI(s)`, `Package(s)`, `File(s)/Folder(s)`, `Branch`, `Commit`, `Testing`)
 > **Execution**: Parallel stream Phase V ∥ VI ∥ VII (from common `dev` base)
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -12,7 +13,7 @@ Expose end-user register and login APIs built on the local strategy and JWT issu
 ## Atomic Tasks
 
 ### `VI-1-1a` — Add end-user register API
-- **Description**: Implement `POST /auth/register` creating a local user via the Argon2 hashing port from `III-1-2a`, with a request DTO, Swagger docs and a rate-limit hook from `II-5-3`. Atomic checks: (a) endpoint registered, (b) password hashed through the port, (c) validation/whitelist applied to the DTO, (d) duplicate email returns 409, (e) endpoint documented in Swagger.
+- **Description**: Implement `POST /auth/register` creating a local user via the Argon2 hashing port from `III-1-2a`, with a request DTO, Swagger docs and a rate-limit hook from `II-5-3`; the controller is thin and delegates to the `Register` use-case, which depends only on the hashing and repository ports (DDD/DIP). Atomic checks: (a) endpoint registered, (b) password hashed through the port, (c) validation/whitelist applied to the DTO, (d) duplicate email returns 409, (e) endpoint documented in Swagger.
 - **CLI(s)**: `None (code only — handler and DTO added to the existing AuthController/AuthModule from Phase IV)`
 - **Package(s)**: None new — reuses `@nestjs/swagger` (`I-3-4a`), `@nestjs/throttler` (`II-5-3`) and Argon2 (`III-1-2a`).
 - **File(s)/Folder(s)**:

@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 9 (IX): Security Hardening & Observability - Step 3: Release & Tag
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: no application code in this step; keep configuration/CI/docs simple per the roadmap's "Architecture & Design Conventions (DDD + SOLID)" (pragmatic, no over-engineering).
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; each atomic task uses the 7-field format (Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing)
 > **Execution**: Strict sequential Phase IX Step 3 after Step 2; Phase IX → Phase X strict sequential
 > **Branch base**: `dev`; **Branch prefix**: `chore/...`

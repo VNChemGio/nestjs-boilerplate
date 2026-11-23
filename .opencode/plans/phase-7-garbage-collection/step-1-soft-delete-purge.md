@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 7 (VII): Garbage Collection - Step 1: Soft Delete Purge
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format (`Description`, `CLI(s)`, `Package(s)`, `File(s)/Folder(s)`, `Branch`, `Commit`, `Testing`)
 > **Execution**: Parallel stream Phase V ∥ VI ∥ VII
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -23,7 +24,7 @@ Add a scheduled cron job that permanently purges soft-deleted records.
 - **Testing**: Unit test cron registration and schedule with `vi.useFakeTimers()` and mocked config; assert the job runs without error and respects the dry-run flag. Run `npm test`, `npm run test:cov`, `npm run lint`, `npm run typecheck`.
 
 ### `VII-1-1b` — Implement batch soft delete purge service
-- **Description**: Add a `SoftDeletePurgeService` that batch-selects records whose `deletedAt` is older than the configured retention window and hard-deletes them through the TypeORM soft-delete setup from `II-1-1`, in configurable batches to avoid long locks, with structured logging of purged counts and dry-run support; wire it into the cron from `VII-1-1a`. Atomic checks: (a) only expired soft-deleted rows selected, (b) deletes in batches, (c) purged count logged, (d) dry-run performs no deletes.
+- **Description**: Add a `SoftDeletePurgeService` that batch-selects records whose `deletedAt` is older than the configured retention window and hard-deletes them through the TypeORM soft-delete setup from `II-1-1`, in configurable batches to avoid long locks, with structured logging of purged counts and dry-run support; wire it into the cron from `VII-1-1a` (cron = interfaces layer, purge service = application layer, TypeORM repository = infrastructure adapter). Atomic checks: (a) only expired soft-deleted rows selected, (b) deletes in batches, (c) purged count logged, (d) dry-run performs no deletes.
 - **CLI(s)**: `npx nest g service modules/garbage-collection/soft-delete-purge --flat`
 - **Package(s)**: None new — reuses TypeORM/@nestjs/typeorm (`II-1-1`) and the scheduler (`VII-1-1a`).
 - **File(s)/Folder(s)**:

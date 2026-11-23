@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 2 (II): Data Layer & Resilience - Step 1: Database
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit
 > **Task format**: each atomic task uses the 7-field format — Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing
 > **Execution**: Phase II tasks may run in parallel (from common `dev` base); strict order Phase I → II
@@ -24,7 +25,7 @@ Set up TypeORM with PostgreSQL and soft-delete support as the persistence founda
 - **Testing**: unit test that the `forRootAsync` factory returns Postgres options from the config provider; `npm run typecheck`; boot smoke check against `docker compose up -d postgres` (app starts with `npm run start:dev`).
 
 ### `II-1-1b` — Add soft-delete base entity and interface
-- **Description**: Add an abstract base entity with common `id`/`createdAt`/`updatedAt` columns and `@DeleteDateColumn() deletedAt`, plus a `SoftDeletable` interface/port for reusable repositories; enable decorator metadata in `tsconfig.json` if needed for TypeORM decorators. Atomic checks: (a) `deletedAt` is a `DeleteDateColumn`, (b) base entity/interface exported from an index, (c) default queries exclude soft-deleted rows and `withDeleted` includes them.
+- **Description**: Add an abstract base entity (shared-kernel domain primitive) with common `id`/`createdAt`/`updatedAt` columns and `@DeleteDateColumn() deletedAt`, plus a narrow `SoftDeletable` port that DDD repository adapters implement for reusable soft-delete behavior (ISP); enable decorator metadata in `tsconfig.json` if needed for TypeORM decorators. Atomic checks: (a) `deletedAt` is a `DeleteDateColumn`, (b) base entity/interface exported from an index, (c) default queries exclude soft-deleted rows and `withDeleted` includes them.
 - **CLI(s)**: `None (config/code only)`
 - **Package(s)**: `None` (uses `typeorm` installed in `II-1-1a`)
 - **File(s)/Folder(s)**:

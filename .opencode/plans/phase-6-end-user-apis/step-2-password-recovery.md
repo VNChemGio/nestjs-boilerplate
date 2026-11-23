@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 6 (VI): End-User APIs - Step 2: Password Recovery
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit; every atomic task uses the 7-field format (`Description`, `CLI(s)`, `Package(s)`, `File(s)/Folder(s)`, `Branch`, `Commit`, `Testing`)
 > **Execution**: Parallel stream Phase V ∥ VI ∥ VII; sequential within phase
 > **Branch base**: `dev`; **Branch prefix**: `feat/...`
@@ -11,7 +12,7 @@ Add forgot/reset password APIs using the async mail provider (BullMQ) and Handle
 ## Atomic Tasks
 
 ### `VI-2-1a` — Add forgot password request API
-- **Description**: Implement `POST /auth/forgot-password`: look up the user by email with a uniform response (no account enumeration), generate a signed, short-lived single-use reset token, persist its hash/expiry, render the password-reset template from `II-4-1` and enqueue a mail job through the `mail` queue producer from `II-3-1`. Atomic checks: (a) endpoint exists, (b) signed expiring token stored, (c) reset email enqueued with rendered template, (d) identical response for existing and unknown emails, (e) rate-limited.
+- **Description**: Implement `POST /auth/forgot-password`: look up the user by email with a uniform response (no account enumeration), generate a signed, short-lived single-use reset token, persist its hash/expiry, render the password-reset template from `II-4-1` and enqueue a mail job through the `mail` queue producer from `II-3-1`; all side effects go through ports so the use-case stays transport-agnostic (DIP). Atomic checks: (a) endpoint exists, (b) signed expiring token stored, (c) reset email enqueued with rendered template, (d) identical response for existing and unknown emails, (e) rate-limited.
 - **CLI(s)**: `npx nest g service modules/auth/password-reset --flat`
 - **Package(s)**: None new — reuses built-in `node:crypto`, the JWT/crypto util from `IV-1-2`, `@nestjs/bullmq` (`II-2-2`/`II-3-1`) and i18n templates (`II-4-1`).
 - **File(s)/Folder(s)**:

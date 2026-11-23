@@ -1,6 +1,7 @@
 # Task Breakdown - Phase 2 (II): Data Layer & Resilience - Step 4: Email Templates
 
 > Source of truth: `.opencode/plans/roadmap.md` → "Executive Summary & Task List (Unified Table)"
+> **Architecture (DDD + SOLID)**: follow the roadmap's "Architecture & Design Conventions (DDD + SOLID)" — bounded context per feature module with `domain/` (entities, value objects, ports), `application/` (use cases), `infrastructure/` (adapters), `interfaces/` (controllers/DTOs); depend on port tokens (DIP), keep adapters substitutable via conformance tests (LSP) and ports narrow (ISP). Apply pragmatically — no ports or aggregates where a plain config/DTO will do.
 > **Format**: `PHASE-STEP-TASKID` — one atomic task = one commit
 > **Task format**: each atomic task uses the 7-field format — Description, CLI(s), Package(s), File(s)/Folder(s), Branch, Commit, Testing
 > **Execution**: Phase II tasks may run in parallel (from common `dev` base); conceptually depends on `II-3-1`
@@ -24,7 +25,7 @@ Add localized Handlebars email templates via nestjs-i18n, building on the async 
 - **Testing**: unit test the engine renders a named `.hbs` template with a context and returns HTML; `npm run typecheck`; `npm run build` and assert templates/catalogs land in `dist`.
 
 ### `II-4-1b` — Add localized templates and render service
-- **Description**: Add at least two localized templates (welcome, password reset) with locale variants (e.g. `welcome.en.hbs`) plus a shared layout, and add a render service that injects `I18nService`, reads typed catalog keys for subjects and returns `{ subject, html }`; expose `Mailable` classes for the mail adapter to send. Atomic checks: (a) ≥2 templates, (b) localized variant resolves per locale, (c) render service returns HTML + localized subject, (d) mail adapter/queue uses the rendered mails.
+- **Description**: Add at least two localized templates (welcome, password reset) with locale variants (e.g. `welcome.en.hbs`) plus a shared layout, and add a render service that injects `I18nService`, reads typed catalog keys for subjects and returns `{ subject, html }`; expose `Mailable` classes for the mail adapter to send. DDD/SOLID: the render service is an application service returning a domain `Mailable`, while the Handlebars engine stays an infrastructure adapter. Atomic checks: (a) ≥2 templates, (b) localized variant resolves per locale, (c) render service returns HTML + localized subject, (d) mail adapter/queue uses the rendered mails.
 - **CLI(s)**: `None (code/assets only; uses packages from II-4-1a)`
 - **Package(s)**: `None` (reuses `@nestjs/i18n`, `handlebars` and `@nestjs/mail`)
 - **File(s)/Folder(s)**:
